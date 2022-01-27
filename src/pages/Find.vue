@@ -1,0 +1,138 @@
+<template>
+    <div class="container">
+    <div class="mt-6 mb-6">
+    <h1 class="it-title">
+      {{ title }}
+    </h1>
+    <p class="it-desc">
+      {{ desc }}
+    </p>
+    </div>
+    <div class="row mt-12">
+      <div class="col filtration_block">
+        <SittersFilters @filterList="filterList"/>
+      </div>
+      <div class="col">
+        <FilterSelect :filters="filters" @changeFilter="changeFilter" />
+        <SittersList :sitters="sortedSitters" />
+      </div>
+    </div>
+  </div>
+</template>
+
+<script>
+import SittersFilters from '../components/sittersFilters'
+import SittersList from '../components/sittersList'
+import FilterSelect from '../components/filterSelect'
+
+
+export default {
+  components: { SittersFilters, SittersList, FilterSelect },
+  data () {
+    return {
+      filters: ['По рейтингу', 'По стажу'],
+      title: 'Наши ситтеры',
+      sortedSitters: [],
+      desc: 'Найдите подходящего под Ваши критерии ситтера для Вашего питомца',
+      sitters: [
+       {
+          name: 'Jane Foster',
+          image: 'jane-foster.jpeg',
+          id: 213,
+          rating: 3,
+          exp: 2,
+          cityAreas: ['Юг'],
+          specialties: ['Собаки'],
+          buttonInfo: {
+            text: 'Посмотреть профиль'
+          },
+          info: [
+            { icon: 'mdi-calendar-range', text: 'Стаж', value: '2 года' },
+            { icon: 'mdi-map-marker', text: 'Район города', value: 'Юг' },
+            { icon: 'mdi-paw', text: 'Специализация', value: 'Собаки' },
+          ]
+        },
+        {
+          name: 'Alex Rakatanski',
+          image: 'alex-rakatanski.jpeg',
+          id: 214,
+          rating: 5,
+          exp: 1,
+          cityAreas: ['Центр'],
+          specialties: ['Кошки'],
+          buttonInfo: {
+            text: 'Посмотреть профиль'
+          },
+          info: [
+            { icon: 'mdi-calendar-range', text: 'Стаж', value: '1 год' },
+            { icon: 'mdi-map-marker', text: 'Район города', value: 'Центр' },
+            { icon: 'mdi-paw', text: 'Специализация', value: 'Кошки' },
+          ]
+        },
+        {
+          name: 'Clay Rideaux',
+          image: 'clay-rideaux.jpeg',
+          id: 215,
+          rating: 4,
+          exp: 5,
+          cityAreas: ['Север'],
+          specialties: ['Экзотические животные'],
+          buttonInfo: {
+            text: 'Посмотреть профиль'
+          },   
+          info: [
+            { icon: 'mdi-calendar-range', text: 'Стаж', value: '5 лет' },
+            { icon: 'mdi-map-marker', text: 'Район города', value: 'Север' },
+            { icon: 'mdi-paw', text: 'Специализация', value: 'Экзотические животные' },
+          ]
+        },
+      ]
+    }
+  },
+  mounted() {
+    this.sortedSitters = this.sitters
+  },
+  methods: {
+
+    filterList (optionsSelected) {
+      if (optionsSelected.cityAreas.length > 0 && optionsSelected.specialties.length > 0 ) {
+      let result = this.sitters.filter( sitter => optionsSelected.cityAreas.some( cityArea => sitter.cityAreas.includes(cityArea) ) && optionsSelected.specialties.some( specialty => sitter.specialties.includes(specialty) )  );
+      this.sortedSitters = result
+      }
+
+      if (optionsSelected.cityAreas.length === 0 && optionsSelected.specialties.length > 0 ) {
+      let result = this.sitters.filter( sitter => optionsSelected.specialties.some( specialty => sitter.specialties.includes(specialty) )  );
+      this.sortedSitters = result
+      }
+
+      if (optionsSelected.cityAreas.length > 0 && optionsSelected.specialties.length === 0 ) {
+      let result = this.sitters.filter( sitter => optionsSelected.cityAreas.some( cityArea => sitter.cityAreas.includes(cityArea) )  );
+      this.sortedSitters = result
+      }
+
+      if (optionsSelected.cityAreas.length === 0 && optionsSelected.specialties.length === 0 ) {
+      this.sortedSitters = this.sitters
+      }
+    },
+    changeFilter (filter) {
+      if (filter === 'По рейтингу') {
+        this.sortedSitters = this.sortedSittersRating()
+      }
+      if (filter === 'По стажу') {
+        this.sortedSitters = this.sortedSittersExp()
+      }
+    },
+    sortedSittersRating () {
+      return JSON.parse(JSON.stringify(this.sortedSitters)).sort(function (a, b) {
+        return b.rating - a.rating        
+      })
+    },
+    sortedSittersExp () {
+      return JSON.parse(JSON.stringify(this.sortedSitters)).sort(function (a, b) {
+        return b.exp - a.exp
+      })
+    }
+  }
+
+}
+</script>
